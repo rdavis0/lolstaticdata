@@ -52,7 +52,6 @@ class Resource(OrderedEnum):
     CRIMSON_RUSH = "CRIMSON_RUSH"
     FRENZY = "FRENZY"
 
-
 class AttackType(OrderedEnum):
     MELEE = "MELEE"
     RANGED = "RANGED"
