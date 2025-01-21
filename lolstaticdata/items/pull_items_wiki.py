@@ -567,24 +567,47 @@ class WikiItem:
         clear_keys = []
         builds_from = []
         nicknames = []
-
-        for x in item_data:
-            if type(item_data[x]) == str:
-                if "=>" in item_data[x]:
+        clear_keys_2 = []
+        def resolve_entry(current_item_name:str, key1: str, key2: Optional[str])->Optional[str]:
+            candidate_entry = wiki_data[current_item_name][key1]
+            if key2:
+                candidate_entry = candidate_entry[key2]
+            if type(candidate_entry) == str:
+                if "=>" in candidate_entry:
                     try:
-                        item_data[x] = wiki_data[item_data[x].replace("=>", "")][x]
+                        resolve_item_name = candidate_entry.replace("=>", "")
+                        if key2:
+                            print(F"Replace value of ['{key1}']['{key2}'] in item '{item_name}' with item '{resolve_item_name}'.")
+                        else:
+                            print(F"Replace value of ['{key1}'] in item '{item_name}' with item '{resolve_item_name}'.")
+                        return resolve_entry(resolve_item_name, key1, key2)
                     except KeyError as e:
-                        clear_keys.append(x)
+                        print(F"Replacement failed... {e}")
+                        if key2:
+                            clear_keys_2.append(key1,key2)
+                            return item_data[key1][key2]
+                        clear_keys.append(key1)
+                        return item_data[key1]
+            return candidate_entry
+        for x in item_data:
+            item_data[x] = resolve_entry(item_name, x, None)
             if x in "effects":
                 for l in item_data[x]:
-                    if "=>" in item_data[x][l]:
-                        item_data[x][l] = wiki_data[item_data[x][l].replace("=>", "")][x][l]
+                    item_data[x][l] = resolve_entry(item_name, x, l)
             if x in "stats":
                 for l in item_data[x]:
-                    if type(item_data[x][l]) ==str and "=>" in item_data[x][l]:
-                        item_data[x][l] = wiki_data[item_data[x][l].replace("=>", "")][x][l]
+                    item_data[x][l] = resolve_entry(item_name, x, l)
         for key in clear_keys:
             item_data.pop(key)
+        index2 = 0
+        stored_clear_key = None
+        for key in clear_keys_2:
+            if index2 == 0:
+                stored_clear_key = key
+                index2 = 1
+            else:
+                item_data[stored_clear_key].pop(key)
+                index2 = 0
         try:
             tier = item_data["tier"]
         except SyntaxError:
