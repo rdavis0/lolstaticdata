@@ -579,32 +579,19 @@ class WikiItem:
 
     @classmethod
     def _parse_item_data(cls, item_data: dict, item_name:str,wiki_data:dict) -> Item:
-        not_unique = re.compile("[A-z]")
         clear_keys = []
+        not_unique = re.compile("[A-z]")
         builds_from = []
         nicknames = []
-        clear_keys_2 = []
-        def resolve_entry(current_item_name:str, key1: str, key2: Optional[str])->Optional[str]:
-            candidate_entry = wiki_data[current_item_name][key1]
-            if key2:
-                candidate_entry = candidate_entry[key2]
-            if type(candidate_entry) == str:
-                if "=>" in candidate_entry:
-                    try:
-                        item_data[x] = wiki_data[item_data[x].replace("=>", "")][x]
-                        if type(item_data[x]) == str:
-                            if "=>" in item_data[x]:
-                                item_data[x] = wiki_data[item_data[x].replace("=>", "")][x]
-                    except KeyError as e:
-                        print(F"Replacement failed... {e}")
-                        if key2:
-                            clear_keys_2.append(key1,key2)
-                            return item_data[key1][key2]
-                        clear_keys.append(key1)
-                        return item_data[key1]
-            return candidate_entry
         for x in item_data:
-            item_data[x] = resolve_entry(item_name, x, None)
+            while isinstance(item_data[x], str) and "=>" in item_data[x]:
+                try:
+                    parent_item = item_data[x].replace("=>", "")
+                    item_data[x] = wiki_data[parent_item][x]
+                except KeyError as e:
+                    clear_keys.append(x)
+                    print(f"WARNING: Couldn't find inherited value of '{x}' for {item_name} - inherited from {parent_item}")
+                    break
             if x in "effects":
                 for l in item_data[x]:
                     if "=>" in item_data[x][l]:
@@ -619,18 +606,8 @@ class WikiItem:
                         item_data[x][l] = wiki_data[item_data[x][l].replace("=>", "")][x][l]
                     if type(item_data[x][l]) ==str and "=>" in item_data[x][l]:
                         item_data[x][l] = wiki_data[item_data[x][l].replace("=>", "")][x][l]
-
         for key in clear_keys:
             item_data.pop(key)
-        index2 = 0
-        stored_clear_key = None
-        for key in clear_keys_2:
-            if index2 == 0:
-                stored_clear_key = key
-                index2 = 1
-            else:
-                item_data[stored_clear_key].pop(key)
-                index2 = 0
         try:
             tier = item_data["tier"]
         except SyntaxError:
