@@ -288,7 +288,7 @@ class Champion(object):
     price: Price
     lore: str
     faction: str
-    skins: List[Skin]
+    # skins: List[Skin]
 
     def __json__(self, *args, **kwargs):
         # Use dataclasses_json to get the dict

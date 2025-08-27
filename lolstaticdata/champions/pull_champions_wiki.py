@@ -393,7 +393,8 @@ class LolWikiDataHandler:
             price=Price(rp=data["rp"], blue_essence=data["be"], sale_rp=sale_price),
             lore="",
             faction="",
-            skins=self._get_champ_skin(name, sale),
+            # skip getting skins. i don't care
+            # skins=self._get_champ_skin(name, sale),
         )
         # "nickname": "nickname",
         # "disp_name": "dispName",
