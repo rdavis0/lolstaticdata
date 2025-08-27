@@ -215,7 +215,8 @@ class LolWikiDataHandler:
         data = lua.decode(spans)
 
         # Return the champData as a list of Champions
-        self.skin_data = self._get_skins()
+        # Skip getting skins. I don't care.
+        # self.skin_data = self._get_skins()
 
         for name, d in data.items():
             print(name)
