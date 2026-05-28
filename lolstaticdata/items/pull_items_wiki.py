@@ -17,6 +17,7 @@ from .modelitem import (
 from ..common.utils import (
     download_soup,
     strip_lua_comments,
+    print_warning,
 )
 from ..common.modelcommon import (
     ArmorPenetration,
@@ -630,7 +631,7 @@ class WikiItem:
                     item_data[x] = wiki_data[parent_item][x]
                 except KeyError as e:
                     clear_keys.append(x)
-                    print(f"WARNING: Couldn't find inherited value of '{x}' for {item_name} - inherited from {parent_item}")
+                    print_warning(f"Couldn't find inherited value of '{x}' for {item_name} - inherited from {parent_item}")
                     break
             if x in "effects":
                 for l in item_data[x]:
