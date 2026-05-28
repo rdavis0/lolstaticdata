@@ -1,6 +1,7 @@
 import os
 import shutil
 import json
+import requests
 
 from .pull_items_wiki import WikiItem, get_item_urls
 from .pull_items_dragon import DragonItem
@@ -8,6 +9,12 @@ from collections import OrderedDict
 
 def main():
     directory = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../.."))
+    try:
+        latest_version = DragonItem.get_latest_version()
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR: Unable to determine latest patch version from Data Dragon: {e}")
+        return
+    print(f"Fetching Item data for patch version: {latest_version}")
     if not os.path.exists(os.path.join(directory, "items")):
         os.mkdir(os.path.join(directory, "items"))
 
@@ -16,7 +23,11 @@ def main():
 
     if not os.path.exists(os.path.join(directory, "__wiki__")):
         os.mkdir(os.path.join(directory, "__wiki__"))
-    cdragon = DragonItem.get_cdragon()
+    try:
+        cdragon = DragonItem.get_cdragon()
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR: Unable to load CommunityDragon items list: {e}")
+        return
     wikiItems = get_item_urls(False)
 
     jsons = {}
