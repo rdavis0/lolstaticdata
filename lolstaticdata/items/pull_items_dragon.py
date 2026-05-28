@@ -2,7 +2,7 @@ import json
 import os
 import requests
 
-from ..common.utils import download_json
+from ..common.utils import download_json, print_warning
 from .pull_items_wiki import WikiItem
 from .modelitem import Item, Shop
 
@@ -50,7 +50,7 @@ class DragonItem:
             try:
                 cls._stringtable_cache = download_json(url, use_cache=True)
             except requests.exceptions.RequestException as e:
-                print(f"WARNING: Could not fetch CommunityDragon stringtable ({url}): {e}")
+                print_warning(f"Could not fetch CommunityDragon stringtable ({url}): {e}")
                 cls._stringtable_cache = None
             cls._stringtable_loaded = True
 
