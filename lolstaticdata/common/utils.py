@@ -131,6 +131,12 @@ def download_json(url: str, use_cache: bool = True) -> Json:
     else:
         headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"}
         page = requests.get(url, headers=headers)
+        if page.status_code == 404:
+            print(f"ERROR: 404 Not Found while fetching JSON: {url}")
+            raise requests.exceptions.HTTPError(f"404 Not Found: {url}", response=page)
+        if page.status_code >= 400:
+            print(f"ERROR: HTTP {page.status_code} while fetching JSON: {url}")
+            raise requests.exceptions.HTTPError(f"HTTP {page.status_code}: {url}", response=page)
         j = page.json()
         if use_cache:
             with open(fn, "w") as f:
@@ -153,6 +159,12 @@ def download_soup(url: str, use_cache: bool = True, dir: str = f"__cache__"):
             html = f.read()
     else:
         page = requests.get(url)
+        if page.status_code == 404:
+            print(f"ERROR: 404 Not Found while fetching page: {url}")
+            raise requests.exceptions.HTTPError(f"404 Not Found: {url}", response=page)
+        if page.status_code >= 400:
+            print(f"ERROR: HTTP {page.status_code} while fetching page: {url}")
+            raise requests.exceptions.HTTPError(f"HTTP {page.status_code}: {url}", response=page)
         # html = page.content.decode(page.encoding)
         html = page.text
         if use_cache:

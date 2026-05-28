@@ -2,6 +2,7 @@ import os
 import json
 import time
 import argparse
+import requests
 from bs4 import BeautifulSoup
 
 from ..common import utils
@@ -10,7 +11,11 @@ from .pull_champions_dragons import get_ability_url as _get_ability_url
 
 
 def get_ability_filenames(url):
-    soup = utils.download_soup(url, use_cache=False)
+    try:
+        soup = utils.download_soup(url, use_cache=False)
+    except requests.exceptions.RequestException as e:
+        print(f"WARNING: Could not load ability icon listing ({url}): {e}")
+        return []
     soup = BeautifulSoup(soup, "lxml")
 
     filenames = []
@@ -55,10 +60,20 @@ def main(champion: str | None = None, stats: bool = False, abilities: bool = Fal
         process_skins=skins or process_all,
     )
 
-    latest_version = utils.get_latest_patch_version()
-    ddragon_champions = utils.download_json(
-        f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/championFull.json"
-    )["data"]
+    try:
+        latest_version = utils.get_latest_patch_version()
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR: Unable to determine latest patch version from Data Dragon: {e}")
+        return
+
+    print(f"Fetching Champion data for patch version: {latest_version}")
+    try:
+        ddragon_champions = utils.download_json(
+            f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/championFull.json"
+        )["data"]
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR: Unable to load champion metadata for patch {latest_version}: {e}")
+        return
 
     factions = {}
     if lore or process_all:
