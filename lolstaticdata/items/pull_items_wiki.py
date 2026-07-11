@@ -68,7 +68,7 @@ class WikiItem:
                 continue
             mode = cls.WIKI_MODE_MAP.get(wiki_key)
             if mode is None:
-                print(f"WARNING: Unknown item mode '{wiki_key}'")
+                print_warning(f"WARNING: Unknown item mode '{wiki_key}'")
                 continue
             modes.append(mode)
         return modes
