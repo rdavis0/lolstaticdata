@@ -103,6 +103,7 @@ class DragonItem:
             rank="",
             special_recipe=special_recipe,
             iconOverlay=None,
+            modes=[],
         )
         return item
 
@@ -168,5 +169,6 @@ class DragonItem:
             stats=[],
             shop=shop,
             rank="",
+            modes=[],
         )
         return item
